@@ -26,7 +26,7 @@ export default function Dashboard() {
     rainfall: 0,
     soilMoisture: 0,
     tiltAngle: 0,
-    vibration: 0,
+    loadCellWeight: 0,
     riskPercentage: 0,
     riskLevel: "SAFE",
     timestamp: new Date().toISOString()
@@ -60,32 +60,36 @@ export default function Dashboard() {
           value={sensorData.rainfall}
           unit="mm"
           icon={CloudRain}
-          color="text-blue-400"
+          color="text-white"
           delay={0}
+          backgroundImage="/rain-bg.jpg"
         />
         <SensorCard
           title="Soil Moisture"
           value={sensorData.soilMoisture}
           unit="%"
           icon={Waves}
-          color="text-emerald-400"
+          color="text-white"
           delay={100}
+          backgroundImage="/soil-bg.jpg"
         />
         <SensorCard
           title="Tilt Angle"
           value={sensorData.tiltAngle}
           unit="°"
           icon={Move}
-          color="text-amber-400"
+          color="text-white"
           delay={200}
+          backgroundImage="/tilt-bg.jpg"
         />
         <SensorCard
-          title="Vibration"
-          value={sensorData.vibration}
-          unit="Hz"
+          title="LOAD CELL (WEIGHT)"
+          value={sensorData.loadCellWeight}
+          unit="kg"
           icon={Activity}
-          color="text-purple-400"
+          color="text-white"
           delay={300}
+          backgroundImage="/load-bg.jpg"
         />
       </div>
 
@@ -105,43 +109,43 @@ export default function Dashboard() {
                 <AreaChart data={history || []}>
                   <defs>
                     <linearGradient id="colorMoisture" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorRain" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                  <XAxis 
-                    dataKey="timestamp" 
-                    stroke="#94a3b8" 
+                  <XAxis
+                    dataKey="timestamp"
+                    stroke="#94a3b8"
                     fontSize={12}
                     tickFormatter={(str) => format(new Date(str), "HH:mm")}
                   />
                   <YAxis stroke="#94a3b8" fontSize={12} />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
                     itemStyle={{ color: '#e2e8f0' }}
                     labelFormatter={(label) => format(new Date(label), "MMM d, HH:mm:ss")}
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="soilMoisture" 
-                    stroke="#10b981" 
+                  <Area
+                    type="monotone"
+                    dataKey="soilMoisture"
+                    stroke="#10b981"
                     strokeWidth={2}
-                    fillOpacity={1} 
-                    fill="url(#colorMoisture)" 
+                    fillOpacity={1}
+                    fill="url(#colorMoisture)"
                     name="Soil Moisture (%)"
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="rainfall" 
-                    stroke="#3b82f6" 
+                  <Area
+                    type="monotone"
+                    dataKey="rainfall"
+                    stroke="#3b82f6"
                     strokeWidth={2}
-                    fillOpacity={1} 
-                    fill="url(#colorRain)" 
+                    fillOpacity={1}
+                    fill="url(#colorRain)"
                     name="Rainfall (mm)"
                   />
                 </AreaChart>

@@ -5,17 +5,18 @@ import { z } from "zod";
 // --- SENSORS ---
 export const sensors = pgTable("sensors", {
   id: serial("id").primaryKey(),
+  locationName: text("location_name").notNull(),
   rainfall: doublePrecision("rainfall").notNull(),
   soilMoisture: doublePrecision("soil_moisture").notNull(),
   tiltAngle: doublePrecision("tilt_angle").notNull(),
-  vibration: doublePrecision("vibration").notNull(),
+  loadCellWeight: doublePrecision("load_cell_weight").notNull(),
   riskPercentage: integer("risk_percentage"),
   riskLevel: text("risk_level"), // SAFE, MODERATE, HIGH
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
-export const insertSensorSchema = createInsertSchema(sensors).omit({ 
-  id: true, 
+export const insertSensorSchema = createInsertSchema(sensors).omit({
+  id: true,
   timestamp: true,
   riskPercentage: true, // Calculated by ML service
   riskLevel: true // Calculated by ML service
@@ -35,9 +36,9 @@ export const locations = pgTable("locations", {
   lastUpdated: timestamp("last_updated").defaultNow().notNull(),
 });
 
-export const insertLocationSchema = createInsertSchema(locations).omit({ 
-  id: true, 
-  lastUpdated: true 
+export const insertLocationSchema = createInsertSchema(locations).omit({
+  id: true,
+  lastUpdated: true
 });
 
 export type Location = typeof locations.$inferSelect;
@@ -52,9 +53,9 @@ export const alerts = pgTable("alerts", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
-export const insertAlertSchema = createInsertSchema(alerts).omit({ 
-  id: true, 
-  timestamp: true 
+export const insertAlertSchema = createInsertSchema(alerts).omit({
+  id: true,
+  timestamp: true
 });
 
 export type Alert = typeof alerts.$inferSelect;

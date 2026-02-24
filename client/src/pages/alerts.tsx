@@ -1,3 +1,4 @@
+import { useLocation } from "wouter";
 import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import { useAlerts } from "@/hooks/use-alerts";
@@ -19,6 +20,7 @@ export default function AlertsPage() {
   const [search, setSearch] = useState("");
   const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [, navigate] = useLocation();
 
   // Sync initial data
   useEffect(() => {
@@ -29,8 +31,10 @@ export default function AlertsPage() {
 
   // WebSocket connection
   useEffect(() => {
-    const socket = io(window.location.origin);
-    
+    const socket = io(window.location.origin, {
+      path: "/socket.io",
+    });
+
     socket.on('connect', () => {
       console.log('Connected to WebSocket for alerts');
     });
@@ -40,7 +44,7 @@ export default function AlertsPage() {
         // Validate incoming alert matches schema structure roughly
         // In a real app we'd fully parse it with zod, but here we just append for UI speed
         setAlerts(prev => [alert, ...prev]);
-        
+
         // Also invalidate query to keep sync
         queryClient.invalidateQueries({ queryKey: [api.alerts.list.path] });
       } catch (e) {
@@ -53,13 +57,13 @@ export default function AlertsPage() {
     };
   }, [queryClient]);
 
-  const filteredAlerts = alerts.filter(alert => 
+  const filteredAlerts = alerts.filter(alert =>
     alert.message.toLowerCase().includes(search.toLowerCase()) ||
     alert.locationName.toLowerCase().includes(search.toLowerCase())
   );
 
   const getAlertIcon = (level: string) => {
-    switch(level) {
+    switch (level) {
       case "HIGH": return <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse" />;
       case "MODERATE": return <Bell className="w-5 h-5 text-amber-500" />;
       default: return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
@@ -67,7 +71,7 @@ export default function AlertsPage() {
   };
 
   const getBorderColor = (level: string) => {
-    switch(level) {
+    switch (level) {
       case "HIGH": return "border-l-4 border-l-red-500 bg-red-500/5";
       case "MODERATE": return "border-l-4 border-l-amber-500 bg-amber-500/5";
       default: return "border-l-4 border-l-emerald-500 bg-emerald-500/5";
@@ -83,8 +87,8 @@ export default function AlertsPage() {
         </div>
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search alerts..." 
+          <Input
+            placeholder="Search alerts..."
             className="pl-9 bg-card/50 border-white/10 focus:border-primary/50 transition-all"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -99,7 +103,7 @@ export default function AlertsPage() {
             {alerts.length} Total
           </span>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto p-4 space-y-3 scroll-smooth" ref={scrollRef}>
           {isLoading ? (
             <div className="space-y-4">
@@ -122,7 +126,19 @@ export default function AlertsPage() {
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className={cn("border-0 shadow-lg transition-all duration-200 hover:translate-x-1", getBorderColor(alert.riskLevel))}>
+                  <Card
+                    onClick={() =>
+                      navigate(
+                        `/emergency-broadcast?location=${encodeURIComponent(
+                          alert.locationName
+                        )}&risk=${alert.riskLevel}`
+                      )
+                    }
+                    className={cn(
+                      "border-0 shadow-lg transition-all duration-200 hover:translate-x-1 cursor-pointer",
+                      getBorderColor(alert.riskLevel)
+                    )}
+                  >
                     <CardContent className="p-4 flex items-start gap-4">
                       <div className="mt-1 p-2 rounded-full bg-background border border-border shadow-sm">
                         {getAlertIcon(alert.riskLevel)}

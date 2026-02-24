@@ -1,3 +1,4 @@
+import EmergencyBroadcastPage from "@/pages/EmergencyBroadcastPage";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ function Router() {
         <Route path="/" component={Dashboard} />
         <Route path="/map" component={MapPage} />
         <Route path="/alerts" component={AlertsPage} />
+        <Route path="/emergency-broadcast" component={EmergencyBroadcastPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

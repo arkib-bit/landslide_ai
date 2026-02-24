@@ -1,3 +1,4 @@
+import { sendSMS } from "./sms";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { Server as SocketIOServer } from "socket.io";
@@ -34,11 +35,11 @@ export async function registerRoutes(
     const sensors = await storage.getSensorHistory();
     res.json(sensors);
   });
-
+  console.log("Sensor create path:", api.sensors.create.path);
   app.post(api.sensors.create.path, async (req, res) => {
     try {
       const input = api.sensors.create.input.parse(req.body);
-      
+
       // ML Service Stub Integration (Python FastAPI on port 5001)
       let riskPercentage = 0;
       let riskLevel = "SAFE";
@@ -76,15 +77,26 @@ export async function registerRoutes(
         riskPercentage,
         riskLevel
       });
+      console.log("Risk Level:", riskLevel);
+      // Automatically generate an alert if risk is HIGH
+      console.log("Risk Level:", riskLevel);
 
       // Automatically generate an alert if risk is HIGH
       if (riskLevel === "HIGH") {
+        console.log("🔥 HIGH RISK TRIGGERED");
+
         const alert = await storage.createAlert({
           locationName: "System-wide Warning",
-          message: `High risk conditions detected! Rainfall: ${input.rainfall}mm, Tilt: ${input.tiltAngle}°, Risk: ${riskPercentage}%`,
+          message: `High risk detected! Rainfall: ${input.rainfall}mm, Tilt: ${input.tiltAngle}°, Risk: ${riskPercentage}%`,
           riskLevel: "HIGH"
         });
+
         broadcastAlert(alert);
+
+        await sendSMS(
+          "+919233082979",
+          `🚨 Landslide Alert! High risk detected. Rainfall: ${input.rainfall}mm, Tilt: ${input.tiltAngle}°. Please take precautions immediately.`
+        );
       }
 
       res.status(201).json(sensor);
@@ -141,7 +153,44 @@ export async function registerRoutes(
       throw err;
     }
   });
+  app.post("/api/emergency-broadcast", async (req, res) => {
+    try {
+      const { locationName, message } = req.body;
 
+      if (!locationName || !message) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const finalMessage = `
+🚨 EMERGENCY ALERT 🚨
+Location: ${locationName}
+
+${message}
+`;
+
+      console.log("Sending Emergency Broadcast...");
+
+      // 🔥 Send SMS via Twilio
+      await sendSMS(
+        "+919233082979",   // your verified Twilio number
+        finalMessage
+      );
+
+      // 🔴 Emit real-time alert to dashboard
+      io.emit("newAlert", {
+        locationName,
+        message: finalMessage,
+        riskLevel: "HIGH",
+        timestamp: new Date().toISOString()
+      });
+
+      res.json({ success: true });
+
+    } catch (err) {
+      console.error("Emergency broadcast failed:", err);
+      res.status(500).json({ message: "Broadcast failed" });
+    }
+  });
   // Initial seed data
   setTimeout(async () => {
     try {
@@ -151,19 +200,20 @@ export async function registerRoutes(
         await storage.createLocation({ name: "Awangkhul", latitude: 24.85, longitude: 93.65, riskLevel: "MODERATE", riskPercentage: 45 });
         await storage.createLocation({ name: "Oinamlong", latitude: 24.9, longitude: 93.7, riskLevel: "SAFE", riskPercentage: 12 });
       }
-      
+
       const existingSensors = await storage.getSensorHistory(1);
       if (existingSensors.length === 0) {
         await storage.createSensor({
+          locationName: "Tupul",   // 👈 ADD THIS
           rainfall: 25.5,
           soilMoisture: 40.2,
           tiltAngle: 2.1,
-          vibration: 0.5,
+          loadCellWeight: 0.5,
           riskPercentage: 15,
           riskLevel: "SAFE"
         });
       }
-      
+
       const existingAlerts = await storage.getAlerts();
       if (existingAlerts.length === 0) {
         await storage.createAlert({
@@ -172,7 +222,7 @@ export async function registerRoutes(
           riskLevel: "SAFE"
         });
       }
-    } catch(e) {
+    } catch (e) {
       console.error("Failed to seed db:", e);
     }
   }, 2000);

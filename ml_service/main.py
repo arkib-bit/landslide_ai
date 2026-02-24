@@ -9,7 +9,7 @@ class SensorData(BaseModel):
     rainfall: float
     soilMoisture: float
     tiltAngle: float
-    vibration: float
+    loadCellWeight: float
 
 @app.post("/predict")
 def predict(data: SensorData):

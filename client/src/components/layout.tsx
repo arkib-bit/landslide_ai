@@ -1,10 +1,11 @@
 import { Link, useLocation } from "wouter";
-import { 
-  LayoutDashboard, 
-  Map as MapIcon, 
-  Bell, 
+import {
+  LayoutDashboard,
+  Map as MapIcon,
+  Bell,
   Menu,
-  Activity
+  Activity,
+  Radio
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/map", label: "Live Map", icon: MapIcon },
     { href: "/alerts", label: "Alerts", icon: Bell },
+    { href: "/emergency-broadcast", label: "Emergency Broadcast", icon: Radio },
   ];
 
   const getBackground = () => {
@@ -25,9 +27,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       case "/":
         return `url(${landslideBg})`;
       case "/map":
-        return "linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a)";
+        return "url('/map-bg.avif')";
       case "/alerts":
-        return "radial-gradient(circle at center, #1e1b4b, #0f172a, #020617)";
+        return "url('/alert-bg.avif')";
       default:
         return "none";
     }
@@ -35,12 +37,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div 
-        className="min-h-screen w-full flex flex-col md:flex-row text-foreground bg-cover bg-center bg-no-repeat transition-all duration-700"
+      <div
+        className="min-h-screen w-full flex flex-col md:flex-row text-foreground bg-cover bg-center bg-no-repeat transition-all duration-700 brightness-110 contrast-110"
         style={{ backgroundImage: getBackground() }}
       >
-        <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] pointer-events-none" />
-        
+        {location !== "/" && location !== "/emergency-broadcast" && (
+          <div
+            className={`absolute inset-0 pointer-events-none ${location === "/alerts"
+              ? "bg-black/60"
+              : location === "/map"
+                ? "bg-black/50"
+                : "bg-black/40"
+              }`}
+          />
+        )}
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between p-4 border-b border-border/40 bg-card/50 backdrop-blur-md sticky top-0 z-50">
           <div className="flex items-center gap-2 font-bold text-xl">
@@ -58,8 +68,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {navItems.map((item) => (
                   <Link key={item.href} href={item.href} className={`
                     flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200
-                    ${location === item.href 
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
+                    ${location === item.href
+                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                       : "hover:bg-accent text-muted-foreground hover:text-foreground"}
                   `}>
                     <item.icon className="w-5 h-5" />
@@ -84,8 +94,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {navItems.map((item) => (
               <Link key={item.href} href={item.href} className={`
                 flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group
-                ${location === item.href 
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 translate-x-1" 
+                ${location === item.href
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 translate-x-1"
                   : "hover:bg-white/5 text-muted-foreground hover:text-foreground hover:translate-x-1"}
               `}>
                 <item.icon className={`w-5 h-5 transition-transform duration-300 ${location === item.href ? "scale-110" : "group-hover:scale-110"}`} />
