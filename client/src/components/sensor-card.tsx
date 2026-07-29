@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 
 interface SensorCardProps {
   title: string;
-  value: number;
-  unit: string;
+  value: number | boolean;
+  unit?: string;
   icon: LucideIcon;
   trend?: "up" | "down" | "stable";
   color?: string;
@@ -75,19 +75,31 @@ export function SensorCard({
             className="text-3xl font-bold font-mono tracking-tight flex items-baseline gap-1 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
             style={{ WebkitTextStroke: "0.5px black" }}
           >
-            {value.toFixed(2)}
-            <span
-              className="text-sm font-normal ml-1 font-sans text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)]"
-              style={{ WebkitTextStroke: "0.3px black" }}
-            >{unit}</span>
+            {
+              typeof value === "number"
+                ? value.toFixed(2)
+                : value === true
+                  ? "🌧 Rain"
+                  : "☀️ Sunny"
+            }
+            {typeof value === "number" && unit && (
+              <span
+                className="text-sm font-normal ml-1 font-sans text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)]"
+                style={{ WebkitTextStroke: "0.3px black" }}
+              >
+                {unit}
+              </span>
+            )}
           </div>
           <div className="h-1 w-full bg-secondary mt-4 rounded-full overflow-hidden">
             <div
               className={cn(
                 "h-full transition-all duration-1000 ease-out rounded-full opacity-60 group-hover:opacity-100",
                 backgroundImage
-                  ? title === "Rainfall"
-                    ? "bg-blue-500"
+                  ? typeof value === "boolean"
+                    ? value
+                      ? "bg-blue-500"
+                      : "bg-yellow-400"
                     : title === "Soil Moisture"
                       ? "bg-emerald-500"
                       : title === "Tilt Angle"
@@ -97,7 +109,14 @@ export function SensorCard({
                           : "bg-blue-500"
                   : color.replace("text-", "bg-")
               )}
-              style={{ width: `${Math.min(Math.max(value, 0), 100)}%` }}
+              style={{
+                width:
+                  typeof value === "number"
+                    ? `${Math.min(Math.max(value, 0), 100)}%`
+                    : value
+                      ? "100%"
+                      : "0%"
+              }}
             />
           </div>
         </CardContent>

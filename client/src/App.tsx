@@ -1,3 +1,4 @@
+import DispatchPage from "./pages/DispatchPage";
 import EmergencyBroadcastPage from "@/pages/EmergencyBroadcastPage";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
@@ -18,6 +19,7 @@ function Router() {
         <Route path="/map" component={MapPage} />
         <Route path="/alerts" component={AlertsPage} />
         <Route path="/emergency-broadcast" component={EmergencyBroadcastPage} />
+        <Route path="/dispatch" component={DispatchPage} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

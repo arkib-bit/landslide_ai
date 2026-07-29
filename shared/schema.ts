@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, doublePrecision, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, doublePrecision, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -6,10 +6,10 @@ import { z } from "zod";
 export const sensors = pgTable("sensors", {
   id: serial("id").primaryKey(),
   locationName: text("location_name").notNull(),
-  rainfall: doublePrecision("rainfall").notNull(),
+  rainfall: boolean("rainfall").notNull(),
   soilMoisture: doublePrecision("soil_moisture").notNull(),
   tiltAngle: doublePrecision("tilt_angle").notNull(),
-  loadCellWeight: doublePrecision("load_cell_weight").notNull(),
+  soilPressure: doublePrecision("soil_pressure").notNull(),
   riskPercentage: integer("risk_percentage"),
   riskLevel: text("risk_level"), // SAFE, MODERATE, HIGH
   timestamp: timestamp("timestamp").defaultNow().notNull(),

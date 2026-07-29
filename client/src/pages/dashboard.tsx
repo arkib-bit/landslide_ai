@@ -6,6 +6,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { Sun } from "lucide-react";
 
 export default function Dashboard() {
   const { data: latest, isLoading: isLatestLoading } = useLatestSensor();
@@ -23,15 +24,18 @@ export default function Dashboard() {
 
   // Use latest data or default values if null (no data yet)
   const sensorData = latest || {
-    rainfall: 0,
+    rainfall: false,
     soilMoisture: 0,
     tiltAngle: 0,
-    loadCellWeight: 0,
+    soilPressure: 0,
     riskPercentage: 0,
     riskLevel: "SAFE",
     timestamp: new Date().toISOString()
   };
-
+  const chartData = (history || []).map((item) => ({
+    ...item,
+    rainfall: item.rainfall ? 1 : 0
+  }));
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -56,13 +60,9 @@ export default function Dashboard() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <SensorCard
-          title="Rainfall"
+          title="Weather"
           value={sensorData.rainfall}
-          unit="mm"
-          icon={CloudRain}
-          color="text-white"
-          delay={0}
-          backgroundImage="/rain-bg.jpg"
+          icon={sensorData.rainfall ? CloudRain : Sun}
         />
         <SensorCard
           title="Soil Moisture"
@@ -83,9 +83,9 @@ export default function Dashboard() {
           backgroundImage="/tilt-bg.jpg"
         />
         <SensorCard
-          title="LOAD CELL (WEIGHT)"
-          value={sensorData.loadCellWeight}
-          unit="kg"
+          title="Soil Pressure"
+          value={sensorData.soilPressure}
+          unit="Pa"
           icon={Activity}
           color="text-white"
           delay={300}
@@ -106,7 +106,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={history || []}>
+                <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorMoisture" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
@@ -124,7 +124,10 @@ export default function Dashboard() {
                     fontSize={12}
                     tickFormatter={(str) => format(new Date(str), "HH:mm")}
                   />
-                  <YAxis stroke="#94a3b8" fontSize={12} />
+                  <YAxis
+                    stroke="#94a3b8"
+                    fontSize={12}
+                  />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }}
                     itemStyle={{ color: '#e2e8f0' }}
@@ -146,7 +149,7 @@ export default function Dashboard() {
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#colorRain)"
-                    name="Rainfall (mm)"
+                    name="Rain Status"
                   />
                 </AreaChart>
               </ResponsiveContainer>

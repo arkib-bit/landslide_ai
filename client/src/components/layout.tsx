@@ -5,7 +5,8 @@ import {
   Bell,
   Menu,
   Activity,
-  Radio
+  Radio,
+  FileText
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/map", label: "Live Map", icon: MapIcon },
     { href: "/alerts", label: "Alerts", icon: Bell },
     { href: "/emergency-broadcast", label: "Emergency Broadcast", icon: Radio },
+    { href: "/dispatch", label: "Dispatch", icon: FileText },
   ];
 
   const getBackground = () => {
@@ -87,7 +89,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="p-2 bg-primary/10 rounded-lg">
               <Activity className="w-6 h-6 text-primary" />
             </div>
-            <span className="font-bold text-xl tracking-tight">GeoSense AI</span>
+            <span className="font-bold text-xl tracking-tight">ASTEROID AI</span>
           </div>
 
           <nav className="flex flex-col gap-2 flex-1">
